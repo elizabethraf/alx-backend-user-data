@@ -1,39 +1,31 @@
+bob@dylan:~$ cat main.py
 #!/usr/bin/env python3
-"""Display DB.find_user_by method"""
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.exc import NoResultFound
+"""
+Main file
+"""
+from db import DB
+from user import User
+
 from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm.exc import NoResultFound
 
-engine = create_engine('database_uri')
-Session = sessionmaker(bind=engine)
 
-def find_user_by(**kwargs) -> User:
-    """create a new session"""
-    session = Session()
+my_db = DB()
 
-    try:
-        user = session.query(User).filter_by(**kwargs).first()
+user = my_db.add_user("test@test.com", "PwdHashed")
+print(user.id)
 
-        if user is None:
-            raise NoResultFound("No user found with the given criteria")
+find_user = my_db.find_user_by(email="test@test.com")
+print(find_user.id)
 
-        session.close()
-        return user
-    except InvalidRequestError as i:
-        session.close()
-        raise i
+try:
+    find_user = my_db.find_user_by(email="test2@test.com")
+    print(find_user.id)
+except NoResultFound:
+    print("Not found")
 
-def update_user(self, user_id: int, **kwargs) -> None:
-        """Returns: None"""
-        user = self.find_user_by(id=user_id)
-
-        column_names = User.__table__.columns.keys()
-        for key in kwargs.keys():
-            if key not in column_names:
-                raise ValueError
-
-        for key, value in kwargs.items():
-            setattr(user, key, value)
-
-        self._session.commit()
+try:
+    find_user = my_db.find_user_by(no_email="test@test.com")
+    print(find_user.id)
+except InvalidRequestError:
+    print("Invalid")
