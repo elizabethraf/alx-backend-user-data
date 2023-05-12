@@ -40,36 +40,27 @@ class DB:
         user = User(email=email, hashed_password=hashed_password)
 
         session.add(user)
+        sessiion.commit()
+
+        return user
+
+   def find_user_by(self, **kwargs) -> User:
+        """Display a find_user_by"""
+        if not kwargs or any(x not in VALID_FIELDS for x in kwargs):
+            raise InvalidRequestError
+        session = self._session
+        try:
+            return session.query(User).filter_by(**kwargs).one()
+        except Exception:
+            raise NoResultFound
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Display an update_user"""
+        session = self._session
+        user = self.find_user_by(id=user_id)
+        for a, b in kwargs.items():
+            if a not in VALID_FIELDS:
+                raise ValueError
+            setattr(user, a, b)
         session.commit()
 
-        return user
-
-   def find_user_by(**kwargs) -> User:
-    """create a new session"""
-    session = Session()
-
-    try:
-        user = session.query(User).filter_by(**kwargs).first()
-
-        if user is None:
-            raise NoResultFound("No user found with the given criteria")
-
-        session.close()
-        return user
-    except InvalidRequestError as i:
-        session.close()
-        raise i
-
-   def update_user(self, user_id: int, **kwargs) -> None:
-        """Returns: None"""
-        user = self.find_user_by(id=user_id)
-
-        column_names = User.__table__.columns.keys()
-        for key in kwargs.keys():
-            if key not in column_names:
-                raise ValueError
-
-        for key, value in kwargs.items():
-            setattr(user, key, value)
-
-        self._session.commit()
