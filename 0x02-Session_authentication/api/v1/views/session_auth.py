@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Display Module authentication"""
+"""Display Session authentication"""
 from api.v1.views import app_views
 from flask import abort, jsonify, request
 from models.user import User
@@ -8,10 +8,7 @@ from os import getenv
 
 @app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
 def login():
-    """ POST /auth_session/login
-    Return
-        - Logged in user
-    """
+    """ POST /auth_session/login"""
     email = request.form.get('email')
 
     if not email:
@@ -50,10 +47,7 @@ def login():
 @app_views.route('/auth_session/logout',
                  methods=['DELETE'], strict_slashes=False)
 def logout():
-    """ DELETE /auth_session/logout
-    Return:
-        - Empty dictionary if succesful
-    """
+    """ DELETE /auth_session/logout"""
     from api.v1.app import auth
 
     deleted = auth.destroy_session(request)
@@ -62,3 +56,4 @@ def logout():
         abort(404)
 
     return jsonify({}), 200
+
